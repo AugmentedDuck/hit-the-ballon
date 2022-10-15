@@ -10,6 +10,9 @@ let newBallon = true
 let restarter = 1
 let highscore = 0
 let ballonSize = 50
+let ballonR = 0
+let ballonG = 0
+let ballonB = 0 
 
 function setup() {
   createCanvas(1280, 720);
@@ -17,53 +20,56 @@ function setup() {
 }
 
 function draw() {
-  background(220);
+  displayBackground();
+
+  strokeWeight(1);
 
   goalLocation();
 
-  birdFlight();
+  dartFlight();
 
   goalHit();
 
-  fill(250)
-  circle(dartX, dartY, 10)
+  drawDart();
 
   fill(0)
   textSize(24)
   textAlign(CENTER)
-  text("Score: " + score + "\nHighscore: " + highscore, width / 2, 20)
+  text("Score: " + score + "\nHighscore: " + highscore, width / 2, 25)
 
   displayButtons();
 
-  line(100, 600, mouseX, mouseY)
+  if(!isThrown){
+    line(100, 600, mouseX, mouseY)
+  }
 }
 
 function mouseClicked(){
   if(mouseY <= height && isThrown == false && restarter != 1){
     isThrown = true
-    gravity = (mouseY - 600) * -0.2
-    dartSpeed = (mouseX - 100) * -0.2
+    gravity = (mouseY - 600) * -0.22
+    dartSpeed = (mouseX - 100) * -0.22
   } else if (restarter == 1) {
     restarter = 0
   }
 }
 
-function birdFlight(){
+function dartFlight(){
   if(isThrown){
-    if(dartY < height-5){
+    if(dartY < height - 25){
       gravity += 0.5
     } else {
       gravity = 0
-      dartY = height - 5
+      dartY = height - 25
       
-      if(dartSpeed > 0.5){
-        dartSpeed -= 0.5
-      } else if (dartSpeed < -0.5){
-        dartSpeed += 0.5
+      if(dartSpeed > 0.5 || dartSpeed < -0.5){
+        dartSpeed *= 0.9
       } else {
         dartSpeed = 0
       }
     }
+
+    
 
     if(dartX < 5 || dartX > width-5){
       dartSpeed *= -1
@@ -78,15 +84,21 @@ function goalLocation(){
   if(newBallon){
     ballonX = random(1280);
     ballonY = random(720);
+    ballonR = random(255)
+    ballonG = random(255)
+    ballonB = random(255)
     newBallon = false
   }
 
-  fill(0,100,0)
+  fill(ballonR,ballonB,ballonG)
+  quad(ballonX + 2, ballonY + ballonSize / 2 - 1, ballonX + 10, ballonY + ballonSize / 2 + 10, ballonX - 10, ballonY + ballonSize / 2 + 10, ballonX - 2, ballonY + ballonSize / 2 - 1)
   circle(ballonX, ballonY, ballonSize)
+
+
 }
 
 function goalHit(){
-  if(dartX < ballonX + 20 && dartX > ballonX - 20 && dartY < ballonY + 20 && dartY > ballonY - 20){
+  if(dartX < ballonX + ballonSize && dartX > ballonX - ballonSize && dartY < ballonY + ballonSize && dartY > ballonY - ballonSize){
     
     resetVariables();
 
@@ -124,7 +136,7 @@ function displayButtons(){
   let restartButton = createButton("RETRY");
   let noRestartButton = createButton("UNAVAILABLE")
 
-  restartButton.position(width / 2 - 50, 60);
+  restartButton.position(width / 2 - 50, 65);
   restartButton.size(100);
   restartButton.mousePressed(restartGame);
 
@@ -132,6 +144,44 @@ function displayButtons(){
   noRestartButton.position(-10,-100)
 
   if(dartSpeed != 0 || gravity != 0){
-    noRestartButton.position(width / 2 - 50, 60)
+    noRestartButton.position(width / 2 - 50, 65)
   }
+}
+
+function drawDart(){
+  fill(0)
+  circle(dartX, dartY, 10)
+}
+
+function displayBackground(){
+  let backgroundHillSpace = 400
+  let middlegroundHillSpace = 300
+  let foregroundHillSpace = 250 
+  
+  background(255)
+  strokeWeight(0)
+
+  fill(0, 100, 200)
+  rect(0, 0, width, height)
+
+  fill(250, 200, 0)
+  circle(width / 2 + 100, height / 2, 100)
+  
+  fill(0, 100, 0)
+  for(let i = 61; i < width; i += backgroundHillSpace){
+    ellipse(i, height, 500, 700)
+  }
+
+  fill(0, 133, 0)
+  for(let i = 72; i < width; i += middlegroundHillSpace){
+    ellipse(i, height, 375, 375)
+  }
+  
+  fill(0, 160, 0)
+  for(let i = 27; i < width; i += foregroundHillSpace){
+    ellipse(i, height, 300, 200)
+  }
+
+  fill(0, 200, 0)
+  rect(0, height - 20, width, 20)
 }
