@@ -22,13 +22,16 @@ function setup() {
 function draw() {
   displayBackground();
 
-  strokeWeight(1);
-
   goalLocation();
 
   dartFlight();
 
   goalHit();
+
+  displayPowerLine();
+
+  strokeWeight(1);
+  stroke(0)
 
   drawDart();
 
@@ -38,10 +41,6 @@ function draw() {
   text("Score: " + score + "\nHighscore: " + highscore, width / 2, 25)
 
   displayButtons();
-
-  if(!isThrown){
-    line(100, 600, mouseX, mouseY)
-  }
 }
 
 function mouseClicked(){
@@ -56,11 +55,19 @@ function mouseClicked(){
 
 function dartFlight(){
   if(isThrown){
-    if(dartY < height - 25){
+    if(dartY + gravity < height - 25){
       gravity += 0.5
+    } else if (gravity > 0.5) {
+      gravity *= -0.5
+      dartY = height - 25
+
+      if(dartSpeed > 0.5 || dartSpeed < -0.5){
+        dartSpeed *= 0.9
+      } else {
+        dartSpeed = 0
+      }
     } else {
       gravity = 0
-      dartY = height - 25
       
       if(dartSpeed > 0.5 || dartSpeed < -0.5){
         dartSpeed *= 0.9
@@ -68,8 +75,6 @@ function dartFlight(){
         dartSpeed = 0
       }
     }
-
-    
 
     if(dartX < 5 || dartX > width-5){
       dartSpeed *= -1
@@ -184,4 +189,19 @@ function displayBackground(){
 
   fill(0, 200, 0)
   rect(0, height - 20, width, 20)
+}
+
+function displayPowerLine(){
+  let strokeR = 0;
+  let strokeG = 0;
+
+  strokeR = map(pow(mouseY - 600, 2) + pow(mouseX - 100, 2), 0, 20000, 0, 255)
+  strokeG = 255 - strokeR
+
+  strokeWeight(5)
+
+  stroke(strokeR, strokeG, 0)
+  if(!isThrown){
+    line(100, 600, mouseX, mouseY)
+  }
 }
